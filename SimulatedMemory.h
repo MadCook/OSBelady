@@ -14,11 +14,14 @@ class SimulatedMemory {
   int sequence;
   int memorySize;
   std::array<int, 100> faultsMemSize;
+  bool anomalyDetected;
 
   void createRandomString();
   void runThroughMemory();
   bool checkIfInMemory(int memoryWantingAttention);
   void switchPageIntoMemory(int memoryWantingAttention);
+  void clearMemory();
+  void anomaliesDetected();
 
 public:
   SimulatedMemory(int sequence);

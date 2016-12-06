@@ -5,33 +5,48 @@ SimulatedMemory::SimulatedMemory(int sqc) {
   fifoSimulation = 1;
   numAnomaliesInSequence = 0;
   sequence = sqc;
-  std::srand(time(NULL) + 1);
-  createRandomString();
-  for (int i = 0; i < 251; i++) {
-    Pages[i] = 9999;
-    faultsMemSize[100000];
+  anomalyDetected = false;
+  std::srand(time(NULL) + sqc);
+  for (int i = 0; i < 100; i++) {
+    faultsMemSize[i] = 0;
   }
-  int num;
-  std::cin >> num;
-  for (int i = 1; i <= num; i++) {
-    pageFaults = 0;
+  createRandomString();
+  clearMemory();
+  for (int i = 1; i < 99; i++) {
     memorySize = i;
     runThroughMemory();
+    clearMemory();
   }
-  numAnomaliesInSequence = 0;
-  std::cout << std::endl;
-  for (int i = 1; i < num; i++) {
-    if (faultsMemSize[i] < faultsMemSize[i + 1]) {
-      numAnomaliesInSequence++;
-      std::cout << i << "@ ";
-      std::cout << faultsMemSize[i] << " | " << faultsMemSize[i + 1]
-                << std::endl;
-    }
-  }
-  std::cout << std::endl << "(" << numAnomaliesInSequence << std::endl;
+  anomaliesDetected();
 }
 
 SimulatedMemory::~SimulatedMemory() {}
+
+void SimulatedMemory::anomaliesDetected() {
+  numAnomaliesInSequence = 0;
+  for (int i = 1; i < 99; i++) {
+    if (faultsMemSize[i] < faultsMemSize[i + 1]) {
+      if (!anomalyDetected) {
+        std::cout << "Anomaly Discovered!" << std::endl;
+        std::cout << "     Sequence:" << sequence << std::endl;
+        anomalyDetected = true;
+      }
+      numAnomaliesInSequence++;
+      std::cout << "     Page Faults: " << faultsMemSize[i]
+                << " @ Frame Size:" << i << std::endl;
+      std::cout << "     Page Faults: " << faultsMemSize[i + 1]
+                << " @ Frame Size:" << i + 1 << std::endl;
+      fifoSimulation++;
+    }
+  }
+}
+
+void SimulatedMemory::clearMemory() {
+  pageFaults = 0;
+  for (int i = 0; i < 251; i++) {
+    Pages[i] = 9999;
+  }
+}
 
 void SimulatedMemory::createRandomString() {
   for (int i = 0; i < 1000; i++) {
@@ -49,10 +64,6 @@ void SimulatedMemory::runThroughMemory() {
   }
   faultsMemSize[memorySize] = pageFaults;
   delete[] currentMemory;
-  std::cout << "," << pageFaults;
-  if (memorySize % 20 == 0) {
-    std::cout << std::endl;
-  }
 }
 
 bool SimulatedMemory::checkIfInMemory(int memoryWantingAttention) {
